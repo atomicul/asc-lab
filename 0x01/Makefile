@@ -1,0 +1,21 @@
+ASFLAGS ?= -g
+LDFLAGS ?= -g
+
+ASFLAGS := $(ASFLAGS)
+LDFLAGS := $(LDFLAGS) -e_start
+
+.SUFFIXES:
+
+%: %.o
+	$(LD) $(LDFLAGS) -o $@ $<
+
+%.o: %.s
+	$(AS) $(ASFLAGS) -o $@ $<
+
+.PHONY: build
+build: main
+
+.PHONY: clean
+clean:
+	rm -f *.o
+	rm -f main
