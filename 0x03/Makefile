@@ -8,8 +8,8 @@ CXXFLAGS := $(CXXFLAGS) -m32
 	$(CC) $(CXXFLAGS) $(CFLAGS) -o $@ $<
 
 .PHONY: all
-all: main reverse sort
+all: main reverse sort twos_sum
 
 .PHONY: clean
 clean:
-	rm -f main reverse sort
+	rm -f main reverse sort twos_sum
