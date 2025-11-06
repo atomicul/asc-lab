@@ -1,78 +1,70 @@
 .set EOF, -1
+.set MAX_SIZE, 256
 
 .data
 scan_int: .asciz "%d"
 print_int: .asciz "%d "
 len: .long 0
-array: .space 1024
-array_end:
+array: .space MAX_SIZE*4
 .text
     .global main
 main:
-    movl $array, %edi
+    xorl  %edi, %edi
 
 .read_loop:
-    cmp   $array_end, %edi
+    cmpl  $MAX_SIZE, %edi
     jae   .read_loop_break
 
-    pushl %edi
+    lea   array(, %edi, 4), %eax
+    pushl %eax
     pushl $scan_int
     call  scanf
-    add   $8, %esp
+    addl  $8, %esp
 
-    cmp   $EOF, %eax
+    cmpl  $EOF, %eax
     je    .read_loop_break
 
-    add   $4, %edi
+    inc   %edi
     jmp   .read_loop
 
 .read_loop_break:
-    movl  %edi, %eax
-    sub   $array, %eax
-    xor   %edx, %edx
-    movl  $4, %ebx
-    div   %ebx
-    movl  %eax, len
+    movl  %edi, len
 
 .sort:
-    movl  len, %ecx
+    movl len, %ecx
+
 .sort_loop:
-    movl $array, %eax
     movl $1, %esi
 
 .bubble_loop:
-    cmp len, %esi
-    jae .bubble_loop_break
+    cmpl len, %esi
+    jae  .bubble_loop_break
 
-    movl (%eax, %esi, 4), %ebx
-    cmp  -4(%eax, %esi, 4), %ebx
+    movl array(, %esi, 4), %ebx
+    cmp  array-4(, %esi, 4), %ebx
     jg   .bubble_loop_continue
-    
-    movl  -4(%eax, %esi, 4), %ebx
-    movl  (%eax, %esi, 4), %edi
-    movl  %ebx, (%eax, %esi, 4)
-    movl  %edi, -4(%eax, %esi, 4)
+
+    xchgl %ebx, array-4(, %esi, 4)
+    movl  %ebx, array(, %esi, 4)
 
 .bubble_loop_continue:
     inc %esi
     jmp .bubble_loop
+
 .bubble_loop_break:
     loop .sort_loop
 
 .output:
-    movl  $array, %eax
-    xor   %esi, %esi
-    
+    xorl %esi, %esi
+
 .output_loop:
     cmp  len, %esi
     jge  .output_loop_break
 
-    pushl %eax
-    pushl (%eax, %esi, 4)
+    pushl array(, %esi, 4)
     pushl $print_int
     call  printf
     add   $8, %esp
-    popl  %eax
 
     inc %esi
     jmp .output_loop
@@ -84,5 +76,5 @@ main:
     add $8, %esp
 
 .exit:
-    mov $0, %eax
+    xorl %eax, %eax
     ret
